@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiTrack Pro - Sign Up</title>
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1055;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <div class="logo">
+                <h1><i class="fas fa-heartbeat me-2"></i>FiTrack Pro</h1>
+            </div>
+
+            <!-- Display Django messages -->
+            {% if messages %}
+            <div class="custom-alert">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas
+                        {% if message.tags == 'success' %}fa-check-circle
+                        {% elif message.tags == 'error' %}fa-exclamation-circle
+                        {% else %}fa-info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form class="auth-form" id="signupForm" method="POST">
+                {% csrf_token %}
+                <h2>Create Account</h2>
+                <p class="subtitle">Start your fitness journey today</p>
+
+                <!-- Name Fields in Row -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <label for="first_name"><i class="fas fa-user me-2"></i>First Name *</label>
+                            <input type="text" id="first_name" name="first_name" class="form-control" placeholder="First name" required value="{{ request.POST.first_name }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <label for="middle_initial"><i class="fas fa-user me-2"></i>Middle Initial</label>
+                            <input type="text" id="middle_initial" name="middle_initial" class="form-control" placeholder="M.I." maxlength="1" value="{{ request.POST.middle_initial }}">
+                            <small class="password-hint">First letter only</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <label for="last_name"><i class="fas fa-user me-2"></i>Last Name *</label>
+                            <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Last name" required value="{{ request.POST.last_name }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="age" style="display: block !important; margin-bottom: 8px !important; font-weight: 500;"><i class="fas fa-calendar me-2"></i>Age</label>
+                    <input type="number" id="age" name="age" class="form-control" placeholder="Enter your age" required min="1" max="120" style="padding: 10px 12px; font-size: 0.95rem; width: 100%;" value="{{ request.POST.age }}">
+                </div>
+
+                <div class="input-group">
+                    <label for="section"><i class="fas fa-users me-2"></i>Section</label>
+                    <input type="text" id="section" name="section" class="form-control" placeholder="Enter your section" required value="{{ request.POST.section }}">
+                </div>
+
+                <div class="input-group">
+                    <label for="email"><i class="fas fa-envelope me-2"></i>Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required value="{{ request.POST.email }}">
+                </div>
+
+                <!-- Student Number Field -->
+                <div class="input-group">
+                    <label for="student_no"><i class="fas fa-id-card me-2"></i>Student Number</label>
+                    <input type="text" id="student_no" name="student_no" class="form-control" placeholder="Enter your student number" required value="{{ request.POST.student_no }}">
+                    <small class="password-hint"><i class="fas fa-info-circle me-1"></i>Your official student ID number</small>
+                </div>
+
+                <div class="input-group position-relative">
+                    <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Create a password" required>
+                    <button type="button" class="btn btn-sm position-absolute end-0 top-50 me-2" onclick="togglePassword('password', 'toggleIcon1')" style="border: none; background: transparent; transform: translateY(-50%);">
+                        <i class="fas fa-eye" id="toggleIcon1"></i>
+                    </button>
+                    <small class="password-hint"><i class="fas fa-info-circle me-1"></i>At least 8 characters with a special character</small>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="input-group position-relative">
+                    <label for="confirm_password"><i class="fas fa-lock me-2"></i>Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm your password" required>
+                    <button type="button" class="btn btn-sm position-absolute end-0 top-50 me-2" onclick="togglePassword('confirm_password', 'toggleIcon2')" style="border: none; background: transparent; transform: translateY(-50%);">
+                        <i class="fas fa-eye" id="toggleIcon2"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">
+                    <i class="fas fa-user-plus me-2"></i>Create Account
+                </button>
+
+                <div class="form-footer mt-3">
+                    <p>Already have an account? <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt me-1"></i>Sign In</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/js.js' %}"></script>
+
+    <script>
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Password strength indicator (visual only)
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('passwordStrength');
+            let strength = 0;
+
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/[0-9]/)) strength += 25;
+            if (password.match(/[^a-zA-Z0-9]/)) strength += 25;
+
+            strengthBar.style.width = strength + '%';
+            strengthBar.className =
+                strength <= 25 ? 'progress-bar bg-danger' :
+                strength <= 50 ? 'progress-bar bg-warning' :
+                strength <= 75 ? 'progress-bar bg-info' :
+                'progress-bar bg-success';
+        });
+
+        // Middle Initial - auto capitalize and limit to 1 character
+        document.getElementById('middle_initial').addEventListener('input', function(e) {
+            this.value = this.value.toUpperCase().charAt(0);
+        });
+
+        // Client-side validation
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            const firstName = document.getElementById('first_name').value;
+            const lastName = document.getElementById('last_name').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const studentNo = document.getElementById('student_no').value;
+            const specialCharPattern = /[^a-zA-Z0-9]/;
+
+            // Basic client-side validation
+            if (!firstName.trim()) {
+                e.preventDefault();
+                alert('Please enter your first name.');
+                return;
+            }
+
+            if (!lastName.trim()) {
+                e.preventDefault();
+                alert('Please enter your last name.');
+                return;
+            }
+
+            if (!studentNo.trim()) {
+                e.preventDefault();
+                alert('Please enter your student number.');
+                return;
+            }
+
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long.');
+                return;
+            }
+
+            if (!specialCharPattern.test(password)) {
+                e.preventDefault();
+                alert('Password must contain at least one special character.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match.');
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>

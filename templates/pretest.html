@@ -1,0 +1,458 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiTrack Pro - Fitness Pre-Test</title>
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pretest.css' %}">
+</head>
+<body>
+    <div class="container pretest-wrapper">
+        <div class="form-wrapper">
+            <div class="logo">
+                <h1><i class="fas fa-heartbeat me-2"></i>FiTrack Pro</h1>
+            </div>
+
+            <div class="auth-form">
+                <h2><i class="fas fa-clipboard-check me-2"></i>Fitness Profile Pre-Test</h2>
+                <p class="subtitle">Complete your initial fitness assessment</p>
+
+                <!-- Django Messages -->
+                {% if messages %}
+                <div class="custom-alert">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                        <i class="fas
+                            {% if message.tags == 'success' %}fa-check-circle
+                            {% elif message.tags == 'error' %}fa-exclamation-circle
+                            {% else %}fa-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Progress Bar -->
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text">Step <span id="currentStep">1</span> of <span id="totalSteps">3</span></p>
+
+                <!-- Step Indicators -->
+                <div class="step-indicator">
+                    <div class="step-dot active" id="dot1"></div>
+                    <div class="step-dot" id="dot2"></div>
+                    <div class="step-dot" id="dot3"></div>
+                </div>
+
+                <!-- Custom Alert for Error Handling -->
+                <div class="custom-alert" id="customAlert" style="display: none;"></div>
+
+                <!-- Django-enabled form -->
+                <form id="pretestForm" method="POST" action="{% url 'pretest' %}">
+                    {% csrf_token %}
+
+                    <!-- Step 1: BMI -->
+                    <div class="question-container" id="step1">
+                        <div class="question">
+                            <h3><i class="fas fa-weight me-2"></i>Body Mass Index (BMI)</h3>
+                            <div class="input-group">
+                                <label for="weight"><i class="fas fa-balance-scale me-2"></i>Weight (kg) *</label>
+                                <input type="number" id="weight" name="weight" class="form-control" step="0.1" min="1" placeholder="Enter your weight" required value="{{ request.POST.weight }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="height"><i class="fas fa-ruler-vertical me-2"></i>Height (cm) *</label>
+                                <input type="number" id="height" name="height" class="form-control" step="0.1" min="1" placeholder="Enter your height" required value="{{ request.POST.height }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="bmi"><i class="fas fa-calculator me-2"></i>BMI (Auto-calculated)</label>
+                                <input type="text" id="bmi" name="bmi" class="form-control" readonly style="background: #f0f0f0; cursor: not-allowed;" value="{{ request.POST.bmi }}">
+                                <span class="password-hint" id="bmiCategory"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: VO₂ Max -->
+                    <div class="question-container" id="step2" style="display: none;">
+                        <div class="question">
+                            <h3><i class="fas fa-heartbeat me-2"></i>VO₂ Max (Cardiovascular Fitness)</h3>
+                            <div class="input-group">
+                                <label for="age"><i class="fas fa-calendar-alt me-2"></i>Age *</label>
+                                <input type="number" id="age" name="age" class="form-control" min="1" max="150" placeholder="Enter your age" required value="{{ request.POST.age }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="restingHeartRate"><i class="fas fa-heart me-2"></i>Resting Heart Rate (bpm) *</label>
+                                <input type="number" id="restingHeartRate" name="restingHeartRate" class="form-control" min="30" max="200" placeholder="Enter resting heart rate" required value="{{ request.POST.restingHeartRate }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="maxHeartRate"><i class="fas fa-tachometer-alt me-2"></i>Maximum Heart Rate (bpm)</label>
+                                <input type="text" id="maxHeartRate" name="maxHeartRate" class="form-control" readonly style="background: #f0f0f0; cursor: not-allowed;" value="{{ request.POST.maxHeartRate }}">
+                                <span class="password-hint">Auto-calculated: 220 - age</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="vo2max"><i class="fas fa-lungs me-2"></i>VO₂ Max (ml/kg/min)</label>
+                                <input type="text" id="vo2max" name="vo2max" class="form-control" readonly style="background: #f0f0f0; cursor: not-allowed;" value="{{ request.POST.vo2max }}">
+                                <span class="password-hint" id="vo2Category"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Fitness Components -->
+                    <div class="question-container" id="step3" style="display: none;">
+                        <div class="question">
+                            <h3><i class="fas fa-dumbbell me-2"></i>Fitness Components</h3>
+                            <div class="input-group">
+                                <label for="flexibility"><i class="fas fa-arrows-alt-v me-2"></i>Flexibility (cm) *</label>
+                                <input type="number" id="flexibility" name="flexibility" class="form-control" step="0.1" placeholder="Sit-and-reach test result" required value="{{ request.POST.flexibility }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="strength"><i class="fas fa-fist-raised me-2"></i>Strength (repetitions) *</label>
+                                <input type="number" id="strength" name="strength" class="form-control" min="0" placeholder="Push-ups count" required value="{{ request.POST.strength }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="agility"><i class="fas fa-running me-2"></i>Agility (seconds) *</label>
+                                <input type="number" id="agility" name="agility" class="form-control" step="0.01" placeholder="Shuttle run time" required value="{{ request.POST.agility }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="speed"><i class="fas fa-bolt me-2"></i>Speed (seconds) *</label>
+                                <input type="number" id="speed" name="speed" class="form-control" step="0.01" placeholder="40-meter sprint time" required value="{{ request.POST.speed }}">
+                            </div>
+                            <div class="input-group">
+                                <label for="endurance"><i class="fas fa-stopwatch me-2"></i>Endurance (minutes) *</label>
+                                <input type="number" id="endurance" name="endurance" class="form-control" step="0.1" placeholder="12-minute run time" required value="{{ request.POST.endurance }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">
+                            <i class="fas fa-arrow-left me-2"></i>Previous
+                        </button>
+                        <button type="button" class="btn btn-primary" id="nextBtn">
+                            Next<i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary" id="submitBtn" style="display: none;">
+                            <i class="fas fa-check-circle me-2"></i>Submit Pre-Test
+                        </button>
+                    </div>
+                </form>
+
+                <div class="form-footer">
+                    <p><a href="{% url 'student_dashboard' %}" id="skipPretest"><i class="fas fa-forward me-1"></i>Complete Later</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Pre-test JS -->
+    <script src="{% static 'js/pretest.js' %}"></script>
+
+    <script>
+        // Step Management
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        // DOM Elements
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressFill = document.getElementById('progressFill');
+        const currentStepSpan = document.getElementById('currentStep');
+        const customAlert = document.getElementById('customAlert');
+
+        // Update UI based on current step
+        function updateUI() {
+            // Hide all steps
+            step1.style.display = 'none';
+            step2.style.display = 'none';
+            step3.style.display = 'none';
+
+            // Show current step
+            if (currentStep === 1) step1.style.display = 'block';
+            if (currentStep === 2) step2.style.display = 'block';
+            if (currentStep === 3) step3.style.display = 'block';
+
+            // Update progress bar
+            progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
+            currentStepSpan.textContent = currentStep;
+
+            // Update step indicators
+            document.getElementById('dot1').classList.toggle('active', currentStep === 1);
+            document.getElementById('dot2').classList.toggle('active', currentStep === 2);
+            document.getElementById('dot3').classList.toggle('active', currentStep === 3);
+
+            // Update buttons
+            prevBtn.style.display = currentStep > 1 ? 'flex' : 'none';
+            nextBtn.style.display = currentStep < totalSteps ? 'flex' : 'none';
+            submitBtn.style.display = currentStep === totalSteps ? 'flex' : 'none';
+        }
+
+        // Show custom alert for errors
+        function showAlert(message, type = 'danger') {
+            customAlert.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            customAlert.style.display = 'block';
+        }
+
+        // Hide custom alert
+        function hideAlert() {
+            customAlert.style.display = 'none';
+        }
+
+        // Validate current step
+        function validateStep(step) {
+            hideAlert();
+
+            if (step === 1) {
+                const weight = parseFloat(document.getElementById('weight').value);
+                const height = parseFloat(document.getElementById('height').value);
+
+                if (!weight || weight < 20 || weight > 300) {
+                    showAlert('Weight must be between 20-300 kg');
+                    return false;
+                }
+                if (!height || height < 100 || height > 250) {
+                    showAlert('Height must be between 100-250 cm');
+                    return false;
+                }
+                return true;
+            }
+
+            if (step === 2) {
+                const age = parseInt(document.getElementById('age').value);
+                const restingHeartRate = parseInt(document.getElementById('restingHeartRate').value);
+
+                if (!age || age < 13 || age > 100) {
+                    showAlert('Age must be between 13-100 years');
+                    return false;
+                }
+                if (!restingHeartRate || restingHeartRate < 30 || restingHeartRate > 200) {
+                    showAlert('Resting heart rate must be between 30-200 bpm');
+                    return false;
+                }
+                return true;
+            }
+
+            if (step === 3) {
+                const flexibility = parseFloat(document.getElementById('flexibility').value);
+                const strength = parseInt(document.getElementById('strength').value);
+                const agility = parseFloat(document.getElementById('agility').value);
+                const speed = parseFloat(document.getElementById('speed').value);
+                const endurance = parseFloat(document.getElementById('endurance').value);
+
+                if (!flexibility || flexibility < 0 || flexibility > 100) {
+                    showAlert('Flexibility must be between 0-100 cm');
+                    return false;
+                }
+                if (!strength || strength < 0 || strength > 100) {
+                    showAlert('Strength must be between 0-100 reps');
+                    return false;
+                }
+                if (!agility || agility < 5 || agility > 30) {
+                    showAlert('Agility must be between 5-30 seconds');
+                    return false;
+                }
+                if (!speed || speed < 4 || speed > 20) {
+                    showAlert('Speed must be between 4-20 seconds');
+                    return false;
+                }
+                if (!endurance || endurance < 1 || endurance > 60) {
+                    showAlert('Endurance must be between 1-60 minutes');
+                    return false;
+                }
+                return true;
+            }
+
+            return true;
+        }
+
+        // Show confirmation dialog before submitting
+        function showConfirmationDialog() {
+            // Create confirmation modal
+            const confirmationModal = `
+                <div class="modal fade" id="confirmationModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Confirm Submission
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to submit your pre-test results?</p>
+                                <p class="text-muted small">Once submitted, you cannot modify your pre-test data.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="button" class="btn btn-primary" id="confirmSubmit">
+                                    <i class="fas fa-check me-2"></i>Yes, Submit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to body if not exists
+            if (!document.getElementById('confirmationModal')) {
+                document.body.insertAdjacentHTML('beforeend', confirmationModal);
+            }
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            modal.show();
+
+            // Handle confirmation
+            document.getElementById('confirmSubmit').addEventListener('click', function() {
+                // Disable buttons and show loading
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+                submitBtn.disabled = true;
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+
+                // Submit the form
+                document.getElementById('pretestForm').submit();
+            });
+        }
+
+        // Event Listeners for navigation
+        nextBtn.addEventListener('click', function() {
+            if (validateStep(currentStep)) {
+                currentStep++;
+                updateUI();
+            }
+        });
+
+        prevBtn.addEventListener('click', function() {
+            currentStep--;
+            updateUI();
+        });
+
+        // Submit button click handler
+        submitBtn.addEventListener('click', function() {
+            if (validateStep(currentStep)) {
+                showConfirmationDialog();
+            }
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+
+            // Populate form fields if there was a previous submission
+            {% if request.POST %}
+            // Auto-calculate BMI if weight and height are present
+            const weight = document.getElementById('weight');
+            const height = document.getElementById('height');
+            if (weight.value && height.value) {
+                calculateBMI();
+            }
+
+            // Auto-calculate VO2 Max if age and resting heart rate are present
+            const age = document.getElementById('age');
+            const restingHeartRate = document.getElementById('restingHeartRate');
+            if (age.value && restingHeartRate.value) {
+                calculateVO2Max();
+            }
+            {% endif %}
+        });
+
+        // BMI Calculation
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value) / 100; // Convert cm to m
+
+            if (weight && height) {
+                const bmi = weight / (height * height);
+                document.getElementById('bmi').value = bmi.toFixed(1);
+
+                // BMI Category
+                const bmiCategory = document.getElementById('bmiCategory');
+                if (bmi < 18.5) {
+                    bmiCategory.textContent = 'Underweight';
+                    bmiCategory.className = 'password-hint text-warning';
+                } else if (bmi < 25) {
+                    bmiCategory.textContent = 'Normal weight';
+                    bmiCategory.className = 'password-hint text-success';
+                } else if (bmi < 30) {
+                    bmiCategory.textContent = 'Overweight';
+                    bmiCategory.className = 'password-hint text-warning';
+                } else {
+                    bmiCategory.textContent = 'Obese';
+                    bmiCategory.className = 'password-hint text-danger';
+                }
+            }
+        }
+
+        // VO2 Max Calculation
+        function calculateVO2Max() {
+            const age = parseInt(document.getElementById('age').value);
+            const restingHeartRate = parseInt(document.getElementById('restingHeartRate').value);
+
+            if (age && restingHeartRate) {
+                // Calculate max heart rate
+                const maxHeartRate = 220 - age;
+                document.getElementById('maxHeartRate').value = maxHeartRate;
+
+                // Simple VO2 Max estimation (this is a simplified formula)
+                const vo2max = 15.3 * (maxHeartRate / restingHeartRate);
+                document.getElementById('vo2max').value = vo2max.toFixed(1);
+
+                // VO2 Max Category
+                const vo2Category = document.getElementById('vo2Category');
+                if (vo2max < 30) {
+                    vo2Category.textContent = 'Poor';
+                    vo2Category.className = 'password-hint text-danger';
+                } else if (vo2max < 40) {
+                    vo2Category.textContent = 'Fair';
+                    vo2Category.className = 'password-hint text-warning';
+                } else if (vo2max < 50) {
+                    vo2Category.textContent = 'Good';
+                    vo2Category.className = 'password-hint text-info';
+                } else {
+                    vo2Category.textContent = 'Excellent';
+                    vo2Category.className = 'password-hint text-success';
+                }
+            }
+        }
+
+        // Event listeners for auto-calculation
+        document.getElementById('weight').addEventListener('input', calculateBMI);
+        document.getElementById('height').addEventListener('input', calculateBMI);
+        document.getElementById('age').addEventListener('input', calculateVO2Max);
+        document.getElementById('restingHeartRate').addEventListener('input', calculateVO2Max);
+
+        // Initialize UI
+        updateUI();
+    </script>
+</body>
+</html>

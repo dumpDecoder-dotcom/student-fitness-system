@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | BulSU Fitness</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #F9F8F6;
+            --color-primary: #A31D1D;
+            --color-text: #6D2323;
+            --color-accent: #FFF6F5;
+            --color-secondary: #8B5A5A;
+            --color-gold: #D4AF37;
+            --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-main); background: var(--color-bg); color: var(--color-text); min-height: 100vh; }
+        .navbar { background: white; box-shadow: 0 2px 10px rgba(163, 29, 29, 0.1); padding: 1rem 0; }
+        .navbar-brand { font-weight: 700; color: var(--color-primary); font-size: 1.5rem; }
+        .sidebar { background: white; min-height: calc(100vh - 80px); box-shadow: 2px 0 10px rgba(163, 29, 29, 0.1); }
+        .sidebar .nav-link { color: var(--color-text); padding: 12px 20px; margin: 4px 0; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: var(--color-accent); color: var(--color-primary); }
+        .sidebar .nav-link i { width: 20px; margin-right: 10px; }
+        .main-content { padding: 2rem; background: var(--color-bg); }
+        .dashboard-card { border-radius: 12px; border: none; }
+        .card-stat { text-align: center; padding: 1rem; background: var(--color-accent); border-radius: 8px; transition: transform 0.2s ease; }
+        .card-stat:hover { transform: translateY(-2px); }
+        .card-stat p { font-size: 0.9rem; color: var(--color-secondary); margin-bottom: 0.5rem; }
+        .card-stat h6 { font-size: 1.5rem; font-weight: 700; color: var(--color-primary); margin-bottom: 0; }
+        .table th { background: var(--color-accent); color: var(--color-primary); font-weight: 600; border: none; }
+        .table td { border-color: #f0f0f0; padding: 1rem; }
+        .badge { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+        .welcome-section { background: linear-gradient(135deg, var(--color-primary) 0%, #8A1818 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .fitness-icon { font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--color-primary); }
+        .calculator-section { display: none; }
+        .calculator-section.active { display: block; }
+        .calculator-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .calculator-result { background: var(--color-accent); padding: 1.5rem; border-radius: 8px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-heartbeat me-2"></i>BulSU Fitness</a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-2"></i>Juan Dela Cruz
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="d-flex flex-column flex-shrink-0 p-3">
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active" onclick="showSection('dashboard'); return false;">
+                                <i class="fas fa-chart-line"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" onclick="showSection('calculators'); return false;">
+                                <i class="fas fa-calculator"></i>Calculators
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-clipboard-check"></i>Pre-Test
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-tasks"></i>Post-Test
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="dashboard-section">
+                    <!-- Welcome Section -->
+                    <div class="welcome-section">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="fw-bold mb-1">Welcome back, Juan!</h4>
+                                <p class="mb-0">Track your fitness progress and see your performance over time.</p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="d-inline-block bg-white text-primary rounded-pill px-3 py-2">
+                                    <small class="text-muted">Student ID:</small>
+                                    <strong>2021-12345</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Profile Section -->
+                    <div class="dashboard-card bg-white p-4 mb-4 shadow-sm">
+                        <h5 class="fw-semibold mb-3"><i class="fas fa-user me-2"></i>My Profile - Current Fitness Metrics</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4 col-lg">
+                                <div class="card-stat">
+                                    <div class="fitness-icon"><i class="fas fa-weight"></i></div>
+                                    <p>BMI</p>
+                                    <h6>22.5</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg">
+                                <div class="card-stat">
+                                    <div class="fitness-icon"><i class="fas fa-heart-pulse"></i></div>
+                                    <p>VO₂ Max</p>
+                                    <h6>45.3</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg">
+                                <div class="card-stat">
+                                    <div class="fitness-icon"><i class="fas fa-wind"></i></div>
+                                    <p>Flexibility</p>
+                                    <h6>18.5 cm</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg">
+                                <div class="card-stat">
+                                    <div class="fitness-icon"><i class="fas fa-dumbbell"></i></div>
+                                    <p>Strength</p>
+                                    <h6>25.0 kg</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg">
+                                <div class="card-stat">
+                                    <div class="fitness-icon"><i class="fas fa-bolt"></i></div>
+                                    <p>Agility</p>
+                                    <h6>12.3 s</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg">
+                                <div class="card-stat">
+                                    <div class="fitness-icon"><i class="fas fa-running"></i></div>
+                                    <p>Speed</p>
+                                    <h6>8.5 s</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg">
+                                <div class="card-stat">
+                                    <div class="fitness-icon"><i class="fas fa-stopwatch"></i></div>
+                                    <p>Endurance</p>
+                                    <h6>15.2 min</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Charts -->
+                    <div class="row">
+                        <div class="col-lg-12 mb-4">
+                            <div class="dashboard-card bg-white p-4 shadow-sm">
+                                <h5 class="fw-semibold mb-3"><i class="fas fa-chart-bar me-2"></i>Pre-Test vs Post-Test Comparison</h5>
+                                <canvas id="comparisonChart" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Personal Progress Chart -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card bg-white p-4 shadow-sm h-100">
+                                <h5 class="fw-semibold mb-3"><i class="fas fa-chart-line me-2"></i>Personal Progress Chart</h5>
+                                <canvas id="progressChart" height="250"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card bg-white p-4 shadow-sm h-100">
+                                <h5 class="fw-semibold mb-3"><i class="fas fa-dumbbell me-2"></i>Quick Stats</h5>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="card-stat">
+                                            <div class="fitness-icon"><i class="fas fa-clipboard-list"></i></div>
+                                            <p>Tests Taken</p>
+                                            <h6>2</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card-stat">
+                                            <div class="fitness-icon"><i class="fas fa-users"></i></div>
+                                            <p>Section</p>
+                                            <h6>BSIT 3-1</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card-stat">
+                                            <div class="fitness-icon"><i class="fas fa-calendar-alt"></i></div>
+                                            <p>Age</p>
+                                            <h6>20</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card-stat">
+                                            <div class="fitness-icon"><i class="fas fa-check-circle"></i></div>
+                                            <p>Status</p>
+                                            <h6><span class="badge bg-success">Active</span></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test History -->
+                    <div class="dashboard-card bg-white p-4 shadow-sm">
+                        <h5 class="fw-semibold mb-3"><i class="fas fa-history me-2"></i>Test History & Progress</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Test Type</th>
+                                        <th>BMI</th>
+                                        <th>VO₂ Max</th>
+                                        <th>Flexibility</th>
+                                        <th>Strength</th>
+                                        <th>Progress</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Sep 15, 2024</td>
+                                        <td><span class="badge bg-info">Pre-Test</span></td>
+                                        <td>22.5</td>
+                                        <td>45.3</td>
+                                        <td>18.5</td>
+                                        <td>25.0</td>
+                                        <td><span class="badge bg-secondary">Baseline</span></td>
+                                        <td>Good baseline fitness level</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nov 10, 2024</td>
+                                        <td><span class="badge bg-success">Post-Test</span></td>
+                                        <td>21.8</td>
+                                        <td>48.7</td>
+                                        <td>20.2</td>
+                                        <td>28.5</td>
+                                        <td><span class="badge bg-success"><i class="fas fa-arrow-up me-1"></i>Improved</span></td>
+                                        <td>Significant improvement across all metrics</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculator Section -->
+                <div id="calculatorSection" class="calculator-section">
+                    <h4 class="fw-bold mb-4"><i class="fas fa-calculator me-2"></i>Fitness Calculators</h4>
+
+                    <div class="row g-4">
+                        <!-- BMI Calculator -->
+                        <div class="col-lg-6">
+                            <div class="calculator-card">
+                                <h5 class="fw-semibold mb-4"><i class="fas fa-weight me-2 text-danger"></i>BMI Calculator</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Weight (kg)</label>
+                                    <input type="number" class="form-control" id="bmiWeight" placeholder="Enter weight in kg" step="0.1">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Height (cm)</label>
+                                    <input type="number" class="form-control" id="bmiHeight" placeholder="Enter height in cm" step="0.1">
+                                </div>
+                                <button class="btn btn-danger w-100" onclick="calculateBMI()">
+                                    <i class="fas fa-calculator me-2"></i>Calculate BMI
+                                </button>
+                                <div id="bmiResult" class="calculator-result" style="display: none;">
+                                    <h3 class="text-danger text-center mb-2" id="bmiValue">0.0</h3>
+                                    <p class="text-center mb-0">Category: <strong id="bmiCategory"></strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- VO2 Max Calculator -->
+                        <div class="col-lg-6">
+                            <div class="calculator-card">
+                                <h5 class="fw-semibold mb-4"><i class="fas fa-heart-pulse me-2 text-danger"></i>VO₂ Max Calculator</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Distance (meters)</label>
+                                    <input type="number" class="form-control" id="vo2Distance" placeholder="12-minute run distance" step="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Time (minutes)</label>
+                                    <input type="number" class="form-control" id="vo2Time" placeholder="Usually 12 minutes" step="0.1">
+                                </div>
+                                <button class="btn btn-danger w-100" onclick="calculateVO2Max()">
+                                    <i class="fas fa-calculator me-2"></i>Calculate VO₂ Max
+                                </button>
+                                <div id="vo2Result" class="calculator-result" style="display: none;">
+                                    <h3 class="text-danger text-center mb-2" id="vo2Value">0.0 ml/kg/min</h3>
+                                    <p class="text-center mb-0">Fitness Level: <strong id="vo2Level"></strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Section Navigation
+        function showSection(section) {
+            const dashboardSection = document.getElementById('dashboardSection');
+            const calculatorSection = document.getElementById('calculatorSection');
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+            navLinks.forEach(link => link.classList.remove('active'));
+
+            if (section === 'dashboard') {
+                dashboardSection.style.display = 'block';
+                calculatorSection.style.display = 'none';
+                navLinks[0].classList.add('active');
+            } else if (section === 'calculators') {
+                dashboardSection.style.display = 'none';
+                calculatorSection.style.display = 'block';
+                navLinks[1].classList.add('active');
+            }
+        }
+
+        // BMI Calculator with Validation
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            const height = parseFloat(document.getElementById('bmiHeight').value);
+
+            if (!weight || !height || weight <= 0 || height <= 0) {
+                alert('Please enter valid weight and height values');
+                return;
+            }
+
+            const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+            let category = '';
+
+            if (bmi < 18.5) category = 'Underweight';
+            else if (bmi < 25) category = 'Normal';
+            else if (bmi < 30) category = 'Overweight';
+            else category = 'Obese';
+
+            document.getElementById('bmiValue').textContent = bmi;
+            document.getElementById('bmiCategory').textContent = category;
+            document.getElementById('bmiResult').style.display = 'block';
+        }
+
+        // VO2 Max Calculator with Validation
+        function calculateVO2Max() {
+            const distance = parseFloat(document.getElementById('vo2Distance').value);
+            const time = parseFloat(document.getElementById('vo2Time').value);
+
+            if (!distance || !time || distance <= 0 || time <= 0) {
+                alert('Please enter valid distance and time values');
+                return;
+            }
+
+            // Cooper test formula
+            const vo2Max = ((distance - 504.9) / 44.73).toFixed(1);
+            let level = '';
+
+            if (vo2Max < 35) level = 'Poor';
+            else if (vo2Max < 42) level = 'Fair';
+            else if (vo2Max < 47) level = 'Good';
+            else level = 'Excellent';
+
+            document.getElementById('vo2Value').textContent = vo2Max + ' ml/kg/min';
+            document.getElementById('vo2Level').textContent = level;
+            document.getElementById('vo2Result').style.display = 'block';
+        }
+
+        // Progress Chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                datasets: [{
+                    label: 'Fitness Score',
+                    data: [65, 70, 68, 75, 80, 85],
+                    borderColor: '#A31D1D',
+                    backgroundColor: 'rgba(163, 29, 29, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 100 } }
+            }
+        });
+
+        // Comparison Chart
+        const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+        const labels = ['BMI', 'VO₂ Max', 'Flexibility', 'Strength', 'Agility', 'Speed', 'Endurance'];
+        const preData = [22.5, 45.3, 18.5, 25.0, 12.3, 8.5, 15.2];
+        const postData = [21.8, 48.7, 20.2, 28.5, 11.8, 8.0, 16.8];
+
+        const comparisonChart = new Chart(comparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Pre-Test',
+                        data: preData,
+                        backgroundColor: 'rgba(163, 29, 29, 0.8)',
+                        borderColor: 'rgba(163, 29, 29, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Post-Test',
+                        data: postData,
+                        backgroundColor: 'rgba(212, 175, 55, 0.8)',
+                        borderColor: 'rgba(212, 175, 55, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
+</body>
+</html>

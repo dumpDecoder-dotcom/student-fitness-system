@@ -1,0 +1,548 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BulSU Fitness - Your Fitness Journey Starts Here</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-bg: #F9F8F6;
+            --color-primary: #A31D1D;
+            --color-text: #6D2323;
+            --color-accent: #FFF6F5;
+            --color-secondary: #8B5A5A;
+            --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--color-bg);
+            color: var(--color-text);
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: white !important;
+            box-shadow: 0 2px 12px rgba(163, 29, 29, 0.08);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary) !important;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            color: var(--color-text) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--color-primary) !important;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #8A1818;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(163, 29, 29, 0.3);
+        }
+
+        .btn-outline-primary {
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--color-accent) 0%, white 100%);
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: var(--color-primary);
+            opacity: 0.05;
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-section h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-section p {
+            font-size: 20px;
+            color: var(--color-secondary);
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-buttons {
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .hero-image {
+            animation: fadeInRight 1s ease;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(163, 29, 29, 0.15);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            font-size: 18px;
+            color: var(--color-secondary);
+        }
+
+        .feature-card {
+            background: white;
+            border: 2px solid var(--color-primary);
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            margin-bottom: 30px;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 32px rgba(163, 29, 29, 0.15);
+            background: var(--color-accent);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: var(--color-primary);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--color-primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            font-size: 15px;
+            color: var(--color-secondary);
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: var(--color-primary);
+            padding: 60px 0;
+            color: white;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--color-accent) 0%, white 100%);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            color: var(--color-secondary);
+            margin-bottom: 40px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-text);
+            color: white;
+            padding: 40px 0 20px;
+        }
+
+        footer h5 {
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: white;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--color-primary);
+            transform: translateY(-3px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 36px;
+            }
+
+            .hero-section p {
+                font-size: 16px;
+            }
+
+            .section-title h2 {
+                font-size: 28px;
+            }
+
+            .stat-number {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">BulSU Fitness</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary">Login</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1>Transform Your Fitness Journey</h1>
+                    <p>Track your progress, achieve your goals, and become the best version of yourself with BulSU Fitness.</p>
+                    <div class="hero-buttons">
+                        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg me-3 mb-2">Get Started Free</a>
+                        <a href="#features" class="btn btn-outline-primary btn-lg mb-2">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 hero-image text-center mt-5 mt-lg-0">
+                    <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop" alt="Fitness Training">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">5K+</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">50K+</div>
+                        <div class="stat-label">Workouts Logged</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">4.8</div>
+                        <div class="stat-label">User Rating</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose BulSU Fitness?</h2>
+                <p>Everything you need to reach your fitness goals</p>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Track Progress</h3>
+                        <p>Monitor your BMI, VO2 Max, and comprehensive fitness metrics with detailed analytics and insights.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <h3>Personalized Plans</h3>
+                        <p>Get customized workout and nutrition plans tailored to your fitness level and goals.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Community Support</h3>
+                        <p>Join a thriving community of fitness enthusiasts and get motivated together.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h3>Health Monitoring</h3>
+                        <p>Track your heart rate, calories burned, and overall health metrics in real-time.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3>Goal Achievement</h3>
+                        <p>Set realistic goals and celebrate milestones with our achievement system.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Mobile Friendly</h3>
+                        <p>Access your fitness data anywhere, anytime with our responsive design.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="about">
+        <div class="container">
+            <h2>Ready to Start Your Fitness Journey?</h2>
+            <p>Join thousands of users who have transformed their lives with BulSU Fitness</p>
+            <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Create Your Free Account</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>BulSU Fitness</h5>
+                    <p>Your complete fitness tracking solution. Transform your body, transform your life.</p>
+                    <div class="social-links mt-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#features">Features</a></li>
+                        <li class="mb-2"><a href="#about">About Us</a></li>
+                        <li class="mb-2"><a href="{% url 'pretest' %}">Pre-Test</a></li>
+                        <li class="mb-2"><a href="{% url 'signup' %}">Sign Up</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">Help Center</a></li>
+                        <li class="mb-2"><a href="#">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="#">Terms of Service</a></li>
+                        <li class="mb-2"><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-12 mb-4">
+                    <h5>Contact</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> Bulacan State University</p>
+                    <p><i class="fas fa-envelope me-2"></i> info@bulsufitness.com</p>
+                    <p><i class="fas fa-phone me-2"></i> +63 123 456 7890</p>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255,255,255,0.1);">
+            <div class="text-center pt-3">
+                <p>&copy; 2024 BulSU Fitness. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

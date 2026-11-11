@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiTrack Pro - Fitness Post-Test</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Fitness Post-Test Assessment</h4>
+                    </div>
+                    <div class="card-body">
+
+                        {% if messages %}
+                        <div class="mb-3">
+                            {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if pre_test %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Compare your current results with your pre-test data.
+                        </div>
+                        {% endif %}
+
+                        <form id="posttestForm" method="POST" action="{% url 'student_post_test' %}">
+                            {% csrf_token %}
+
+                            <!-- BMI Section -->
+                            <div class="mb-4">
+                                <h5 class="text-success"><i class="fas fa-calculator me-2"></i>Body Mass Index (BMI)</h5>
+                                {% if pre_test %}
+                                <div class="alert alert-warning">
+                                    Pre-Test BMI: <strong>{{ pre_test.bmi|floatformat:1 }}</strong>
+                                </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Weight (kg) *</label>
+                                        <input type="number" name="weight" class="form-control" step="0.1" min="20" max="300" required
+                                               value="{{ request.POST.weight }}" oninput="calculateBMI()">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Height (cm) *</label>
+                                        <input type="number" name="height" class="form-control" step="0.1" min="100" max="250" required
+                                               value="{{ request.POST.height }}" oninput="calculateBMI()">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Calculated BMI</label>
+                                        <input type="text" name="bmi" class="form-control" readonly id="bmiResult">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Category</label>
+                                        <input type="text" class="form-control" readonly id="bmiCategory">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VO2 Max Section -->
+                            <div class="mb-4">
+                                <h5 class="text-success"><i class="fas fa-heartbeat me-2"></i>VO₂ Max Calculator</h5>
+                                {% if pre_test %}
+                                <div class="alert alert-warning">
+                                    Pre-Test VO₂ Max: <strong>{{ pre_test.vo2_max|floatformat:1 }}</strong>
+                                </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Age *</label>
+                                        <input type="number" name="age" class="form-control" min="13" max="100" required
+                                               value="{{ request.POST.age }}" oninput="calculateVO2Max()">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Resting Heart Rate (bpm) *</label>
+                                        <input type="number" name="restingHeartRate" class="form-control" min="30" max="200" required
+                                               value="{{ request.POST.restingHeartRate }}" oninput="calculateVO2Max()">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Heart Rate</label>
+                                        <input type="text" class="form-control" readonly id="maxHeartRate">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">VO₂ Max Estimate</label>
+                                        <input type="text" name="vo2max" class="form-control" readonly id="vo2maxResult">
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <label class="form-label">Fitness Level</label>
+                                        <input type="text" class="form-control" readonly id="vo2Category">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fitness Components -->
+                            <div class="mb-4">
+                                <h5 class="text-success"><i class="fas fa-running me-2"></i>Fitness Components</h5>
+                                {% if pre_test %}
+                                <div class="alert alert-warning">
+                                    Pre-Test Scores:
+                                    Flexibility: {{ pre_test.flexibility|floatformat:1 }} |
+                                    Strength: {{ pre_test.strength|floatformat:1 }} |
+                                    Agility: {{ pre_test.agility|floatformat:1 }}
+                                </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Flexibility (cm) *</label>
+                                        <input type="number" name="flexibility" class="form-control" step="0.1" min="0" max="100" required
+                                               value="{{ request.POST.flexibility }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Strength (reps) *</label>
+                                        <input type="number" name="strength" class="form-control" min="0" max="100" required
+                                               value="{{ request.POST.strength }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Agility (seconds) *</label>
+                                        <input type="number" name="agility" class="form-control" step="0.01" min="5" max="30" required
+                                               value="{{ request.POST.agility }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Speed (seconds) *</label>
+                                        <input type="number" name="speed" class="form-control" step="0.01" min="4" max="20" required
+                                               value="{{ request.POST.speed }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Endurance (minutes) *</label>
+                                        <input type="number" name="endurance" class="form-control" step="0.1" min="1" max="60" required
+                                               value="{{ request.POST.endurance }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-save me-2"></i>Save Post-Test Results
+                                </button>
+                                <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Same calculator functions as pre-test
+        function calculateBMI() {
+            const weight = parseFloat(document.querySelector('input[name="weight"]').value);
+            const height = parseFloat(document.querySelector('input[name="height"]').value) / 100;
+
+            if (weight && height) {
+                if (weight < 20 || weight > 300) {
+                    showError('weight', 'Weight must be between 20-300 kg');
+                    return;
+                }
+                if (height < 1 || height > 2.5) {
+                    showError('height', 'Height must be between 100-250 cm');
+                    return;
+                }
+
+                const bmi = weight / (height * height);
+                document.getElementById('bmiResult').value = bmi.toFixed(1);
+
+                let category = '';
+                if (bmi < 18.5) category = 'Underweight';
+                else if (bmi < 25) category = 'Normal weight';
+                else if (bmi < 30) category = 'Overweight';
+                else category = 'Obese';
+
+                document.getElementById('bmiCategory').value = category;
+                clearError('weight');
+                clearError('height');
+            }
+        }
+
+        function calculateVO2Max() {
+            const age = parseInt(document.querySelector('input[name="age"]').value);
+            const restingHR = parseInt(document.querySelector('input[name="restingHeartRate"]').value);
+
+            if (age && restingHR) {
+                if (age < 13 || age > 100) {
+                    showError('age', 'Age must be between 13-100');
+                    return;
+                }
+                if (restingHR < 30 || restingHR > 200) {
+                    showError('restingHeartRate', 'Resting HR must be between 30-200 bpm');
+                    return;
+                }
+
+                const maxHR = 220 - age;
+                document.getElementById('maxHeartRate').value = maxHR;
+
+                const vo2max = 15.3 * (maxHR / restingHR);
+                document.getElementById('vo2maxResult').value = vo2max.toFixed(1);
+
+                let category = '';
+                if (vo2max < 30) category = 'Poor';
+                else if (vo2max < 40) category = 'Fair';
+                else if (vo2max < 50) category = 'Good';
+                else category = 'Excellent';
+
+                document.getElementById('vo2Category').value = category;
+                clearError('age');
+                clearError('restingHeartRate');
+            }
+        }
+
+        function showError(fieldName, message) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            field.classList.add('is-invalid');
+
+            let errorDiv = field.parentNode.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                field.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = message;
+        }
+
+        function clearError(fieldName) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            field.classList.remove('is-invalid');
+        }
+
+        // Form validation
+        document.getElementById('posttestForm').addEventListener('submit', function(e) {
+            let isValid = true;
+
+            const requiredFields = this.querySelectorAll('input[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    showError(field.name, 'This field is required');
+                    isValid = false;
+                }
+            });
+
+            const flexibility = parseFloat(this.querySelector('[name="flexibility"]').value);
+            if (flexibility < 0 || flexibility > 100) {
+                showError('flexibility', 'Flexibility must be between 0-100 cm');
+                isValid = false;
+            }
+
+            const strength = parseInt(this.querySelector('[name="strength"]').value);
+            if (strength < 0 || strength > 100) {
+                showError('strength', 'Strength must be between 0-100 reps');
+                isValid = false;
+            }
+
+            const agility = parseFloat(this.querySelector('[name="agility"]').value);
+            if (agility < 5 || agility > 30) {
+                showError('agility', 'Agility must be between 5-30 seconds');
+                isValid = false;
+            }
+
+            const speed = parseFloat(this.querySelector('[name="speed"]').value);
+            if (speed < 4 || speed > 20) {
+                showError('speed', 'Speed must be between 4-20 seconds');
+                isValid = false;
+            }
+
+            const endurance = parseFloat(this.querySelector('[name="endurance"]').value);
+            if (endurance < 1 || endurance > 60) {
+                showError('endurance', 'Endurance must be between 1-60 minutes');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fix the validation errors before submitting.');
+            }
+        });
+    </script>
+</body>
+</html>

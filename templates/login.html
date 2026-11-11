@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BulSU Fitness - Login</title>
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-bg: #F9F8F6;
+            --color-primary: #A31D1D;
+            --color-text: #6D2323;
+            --color-accent: #FFF6F5;
+            --color-secondary: #8B5A5A;
+            --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .form-wrapper {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 24px rgba(163, 29, 29, 0.08);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 32px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .auth-form h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--color-secondary);
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            background: white;
+            color: var(--color-text);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            background: var(--color-accent);
+            border-color: var(--color-primary);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: var(--color-primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #8A1818;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(163, 29, 29, 0.3);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -8px;
+            margin-bottom: 24px;
+        }
+
+        .forgot-password a {
+            font-size: 13px;
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .form-footer {
+            margin-top: 32px;
+            text-align: center;
+        }
+
+        .form-footer p {
+            font-size: 14px;
+            color: var(--color-secondary);
+        }
+
+        .form-footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        @media (max-width: 540px) {
+            .form-wrapper {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <div class="logo">
+                <h1><i class="fas fa-heartbeat me-2"></i>BulSU Fitness</h1>
+            </div>
+
+            <!-- Display Django Messages -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                            <i class="fas
+                                {% if message.tags == 'success' %}fa-check-circle
+                                {% elif message.tags == 'error' %}fa-exclamation-circle
+                                {% else %}fa-info-circle{% endif %} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form class="auth-form" method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Sign in to your account</p>
+
+                <div class="input-group">
+                    <label for="student_no"><i class="fas fa-id-card me-2"></i>ID Number</label>
+                    <input type="text" id="student_no" name="student_no" class="form-control" placeholder="Enter your ID number" required value="{{ request.POST.student_no }}">
+                </div>
+
+                <div class="input-group">
+                    <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#"><i class="fas fa-key me-1"></i>Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="{% url 'signup' %}"><i class="fas fa-user-plus me-1"></i>Sign Up</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+
+            // Add loading state to form submission
+            const form = document.querySelector('.auth-form');
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
+                submitBtn.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html>
