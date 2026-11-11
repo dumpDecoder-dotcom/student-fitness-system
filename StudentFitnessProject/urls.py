@@ -6,7 +6,6 @@ from django.urls import path, include
 urlpatterns = [
 
     path('admin/', admin.site.urls),
-    path('', include('StudentFitnessApp.urls')),
     # Account routes
     path('', landing_page, name='landing_page'),
     path('login/', login_page, name='login'),
